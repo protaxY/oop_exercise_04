@@ -95,7 +95,7 @@ double square(std::tuple<T> &tup){
     if constexpr (std::tuple_size(tup) == Index){
         return 0;
     }
-    return squareCurrentFigure(std::get<Index>(tup)) + square<T, Index + 1>(tup);
+    return squareCurrentFigure(std::get<Index>(tup)) + square<T, Index + 1> (tup);
 }
 
 int main() {
@@ -120,7 +120,7 @@ int main() {
     std::cin >> x >> y >> radius;
     Octagon<double> doubleOctagon(x,y,radius);
     std::tuple<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>> tup(intPentagon, intHexagon, intOctagon, doublePentagon, doubleHexagon, doubleOctagon);
-    print<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>(tup);
-    //double summaryArea = square<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>,0>(tup);
+    print<<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>, 0>(tup);
+    double summaryArea = square<<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>, 0>(tup);
     return 0;
 }
