@@ -67,8 +67,8 @@ typename std::enable_if<std::is_same<T, Octagon<typename T::type>>::value, void>
 }
 
 template <class T, size_t Index>
-void print(std::tuple<T> &tup){
-    if constexpr (std::tuple_size(tup) == Index){
+void print(T &tup){
+    if constexpr (std::tuple_size<T>::value == Index){
         return;
     }
     printCurrentFigure(std::get<Index>(tup));
@@ -90,12 +90,12 @@ typename std::enable_if<std::is_same<T, Octagon<typename T::type>>::value, doubl
     return 8 * 0.5 * sin((double) 45 / 180 * PI) * octagon.Radius * octagon.Radius;
 }
 
-template <class T, size_t Index>
-double square(std::tuple<T> &tup){
+template <class... T, size_t Index>
+double square(std::tuple<T...> &tup){
     if constexpr (std::tuple_size(tup) == Index){
         return 0;
     }
-    return squareCurrentFigure(std::get<Index>(tup)) + square<T, Index + 1> (tup);
+    return squareCurrentFigure(std::get<Index>(tup)) + square<T..., Index + 1> (tup);
 }
 
 int main() {
@@ -119,8 +119,9 @@ int main() {
     std::cout << "insert Octagon<double> center cords and radius:";
     std::cin >> x >> y >> radius;
     Octagon<double> doubleOctagon(x,y,radius);
-    std::tuple<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>> tup(intPentagon, intHexagon, intOctagon, doublePentagon, doubleHexagon, doubleOctagon);
-    print<<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>, 0>(tup);
-    double summaryArea = square<<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>, 0>(tup);
+    std::tuple<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>
+    tup(intPentagon, intHexagon, intOctagon, doublePentagon, doubleHexagon, doubleOctagon);
+    print<decltype(tup), 0>(tup);
+    //double summaryArea = square<<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>, 0>(tup);
     return 0;
 }
