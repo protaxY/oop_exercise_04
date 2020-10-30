@@ -2,7 +2,8 @@
 
 #include <tuple>
 #include <iostream>
-#include <math.h>
+#include <cmath>
+#include <utility>
 
 const double PI = 3.14159265358979323846264338327950288419716939937510;
 
@@ -12,7 +13,7 @@ struct Pentagon{
     std::pair<T,T> Center;
     T Radius;
     Pentagon(T x, T y, T r): Center(x,y), Radius(r){
-        if (Radius <= 0){
+        if (Radius < 0){
             throw std::invalid_argument("invalid pentagon radius");
         }
     }
@@ -24,7 +25,7 @@ struct Hexagon{
     std::pair<T,T> Center;
     T Radius;
     Hexagon(T x, T y, T r): Center(x,y), Radius(r){
-        if (Radius <= 0){
+        if (Radius < 0){
             throw std::invalid_argument("invalid hexagon radius");
         }
     }
@@ -36,7 +37,7 @@ struct Octagon{
     std::pair<T,T> Center;
     T Radius;
     Octagon(T x, T y, T r): Center(x,y), Radius(r){
-        if (Radius <= 0){
+        if (Radius < 0){
             throw std::invalid_argument("invalid octagon radius");
         }
     }
@@ -44,26 +45,35 @@ struct Octagon{
 
 template <class T>
 typename std::enable_if<std::is_same<T, Pentagon<typename T::type>>::value, void>::type printCurrentFigure(T &pentagon){
-    for (int i = 0; i < 5; ++i){
+    for (int i = 0; i < 4; ++i){
         std::cout << "(" << pentagon.Center.first + pentagon.Radius * sin((double) (i * 72) / 180 * PI) << ", "
-        << pentagon.Center.second + pentagon.Radius * cos((double) (i * 72) / 180 * PI) << ")";
+        << pentagon.Center.second + pentagon.Radius * cos((double) (i * 72) / 180 * PI) << "),";
     }
+    std::cout << "(" << pentagon.Center.first + pentagon.Radius * sin((double) (4 * 72) / 180 * PI) << ", "
+              << pentagon.Center.second + pentagon.Radius * cos((double) (4 * 72) / 180 * PI) << ").";
+    std::cout << "\n";
 }
 
 template <class T>
 typename std::enable_if<std::is_same<T, Hexagon<typename T::type>>::value, void>::type printCurrentFigure(T &hexagon){
-    for (int i = 0; i < 6; ++i){
+    for (int i = 0; i < 5; ++i){
         std::cout << "(" << hexagon.Center.first + hexagon.Radius * sin((double) (i * 60) / 180 * PI) << ", "
-                  << hexagon.Center.second + hexagon.Radius * cos((double) (i * 60) / 180 * PI) << ")";
+                  << hexagon.Center.second + hexagon.Radius * cos((double) (i * 60) / 180 * PI) << "),";
     }
+    std::cout << "(" << hexagon.Center.first + hexagon.Radius * sin((double) (5 * 60) / 180 * PI) << ", "
+              << hexagon.Center.second + hexagon.Radius * cos((double) (5 * 60) / 180 * PI) << ").";
+    std::cout << "\n";
 }
 
 template <class T>
 typename std::enable_if<std::is_same<T, Octagon<typename T::type>>::value, void>::type printCurrentFigure(T &octagon){
     for (int i = 0; i < 8; ++i){
         std::cout << "(" << octagon.Center.first + octagon.Radius * sin((double) (i * 45) / 180 * PI) << ", "
-                  << octagon.Center.second + octagon.Radius * cos((double) (i * 45) / 180 * PI) << ")";
+                  << octagon.Center.second + octagon.Radius * cos((double) (i * 45) / 180 * PI) << "),";
     }
+    std::cout << "(" << octagon.Center.first + octagon.Radius * sin((double) (7 * 45) / 180 * PI) << ", "
+              << octagon.Center.second + octagon.Radius * cos((double) (7 * 45) / 180 * PI) << ").";
+    std::cout << "\n";
 }
 
 template <class T, size_t Index>
@@ -71,8 +81,10 @@ void print(T &tup){
     if constexpr (std::tuple_size<T>::value == Index){
         return;
     }
-    printCurrentFigure(std::get<Index>(tup));
-    print<T, Index + 1> (tup);
+    else {
+        printCurrentFigure(std::get<Index>(tup));
+        print<T, Index + 1> (tup);
+    }
 }
 
 template <class T>
@@ -90,38 +102,49 @@ typename std::enable_if<std::is_same<T, Octagon<typename T::type>>::value, doubl
     return 8 * 0.5 * sin((double) 45 / 180 * PI) * octagon.Radius * octagon.Radius;
 }
 
-template <class... T, size_t Index>
-double square(std::tuple<T...> &tup){
-    if constexpr (std::tuple_size(tup) == Index){
+template <class T, size_t Index>
+double square(T &tup){
+    if constexpr (std::tuple_size<T>::value == Index){
         return 0;
     }
-    return squareCurrentFigure(std::get<Index>(tup)) + square<T..., Index + 1> (tup);
+    else{
+        return squareCurrentFigure(std::get<Index>(tup)) + square<T, Index + 1> (tup);
+    }
 }
 
 int main() {
     std::cout << "tuple content: Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>\n";
-    int x,y,radius;
-    std::cout << "insert Pentagon<int> center cords and radius:";
-    std::cin >> x >> y >> radius;
-    Pentagon<int> intPentagon(x,y,radius);
-    std::cout << "insert Hexagon<int> center cords and radius:";
-    std::cin >> x >> y >> radius;
-    Hexagon<int> intHexagon(x,y,radius);
-    std::cout << "insert Octagon<int> center cords and radius:";
-    std::cin >> x >> y >> radius;
-    Octagon<int> intOctagon(x,y,radius);
-    std::cout << "insert Pentagon<double> center cords and radius:";
-    std::cin >> x >> y >> radius;
-    Pentagon<double> doublePentagon(x,y,radius);
-    std::cout << "insert Hexagon<double> center cords and radius:";
-    std::cin >> x >> y >> radius;
-    Hexagon<double> doubleHexagon(x,y,radius);
-    std::cout << "insert Octagon<double> center cords and radius:";
-    std::cin >> x >> y >> radius;
-    Octagon<double> doubleOctagon(x,y,radius);
-    std::tuple<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>
-    tup(intPentagon, intHexagon, intOctagon, doublePentagon, doubleHexagon, doubleOctagon);
-    print<decltype(tup), 0>(tup);
-    //double summaryArea = square<<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>, 0>(tup);
+    int x,y;
+    unsigned radius;
+    std::cin.exceptions(std::istream::failbit | std::istream::badbit);
+    try {
+        std::cout << "insert Pentagon<int> center cords and radius:";
+        std::cin >> x >> y >> radius;
+        Pentagon<int> intPentagon(x, y, radius);
+        std::cout << "insert Hexagon<int> center cords and radius:";
+        std::cin >> x >> y >> radius;
+        Hexagon<int> intHexagon(x, y, radius);
+        std::cout << "insert Octagon<int> center cords and radius:";
+        std::cin >> x >> y >> radius;
+        Octagon<int> intOctagon(x, y, radius);
+        std::cout << "insert Pentagon<double> center cords and radius:";
+        std::cin >> x >> y >> radius;
+        Pentagon<double> doublePentagon(x, y, radius);
+        std::cout << "insert Hexagon<double> center cords and radius:";
+        std::cin >> x >> y >> radius;
+        Hexagon<double> doubleHexagon(x, y, radius);
+        std::cout << "insert Octagon<double> center cords and radius:";
+        std::cin >> x >> y >> radius;
+        Octagon<double> doubleOctagon(x, y, radius);
+        std::tuple<Pentagon<int>, Hexagon<int>, Octagon<int>, Pentagon<double>, Hexagon<double>, Octagon<double>>
+                tup(intPentagon, intHexagon, intOctagon, doublePentagon, doubleHexagon, doubleOctagon);
+        print<decltype(tup), 0>(tup);
+        double summaryArea = square<decltype(tup), 0>(tup);
+        std::cout << summaryArea << "\n";
+    }
+    catch (std::istream::failure e) {
+        std::cout << "incorrect input\n";
+        return 0;
+    }
     return 0;
 }
